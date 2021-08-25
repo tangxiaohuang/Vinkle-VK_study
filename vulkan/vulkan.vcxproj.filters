@@ -24,5 +24,29 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="03_physical_device_selection.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="04_logical_device.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="05_window_surface.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="06_swap_chain_creation.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="07_image_views.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="08_graphics_pipeline.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="09_shader_modules.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="10_fixed_functions.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

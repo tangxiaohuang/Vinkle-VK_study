@@ -17,6 +17,8 @@
 //#include <cstdlib>
 //#include <cstring>
 //#include <vector>
+//#include <optional>
+//
 //
 //const uint32_t WIDTH = 800;
 //const uint32_t HEIGHT = 600;
@@ -33,9 +35,9 @@
 //#endif
 //
 //VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
-//    const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-//    const VkAllocationCallbacks* pAllocatior,
-//    VkDebugUtilsMessengerEXT* pDebugMessenger) 
+//                                      const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+//                                      const VkAllocationCallbacks* pAllocatior,
+//                                      VkDebugUtilsMessengerEXT* pDebugMessenger)
 //{
 //    auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
 //    if (func != nullptr)
@@ -48,15 +50,26 @@
 //}
 //
 //void DestroyDebugUtilsMessengerEXT(VkInstance instance,
-//    VkDebugUtilsMessengerEXT debugMessenger,
-//    const VkAllocationCallbacks* pAllocator)
+//                                   VkDebugUtilsMessengerEXT debugMessenger,
+//                                   const VkAllocationCallbacks* pAllocator)
 //{
 //    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
-//    if (func != nullptr) 
+//    if (func != nullptr)
 //    {
 //        func(instance, debugMessenger, pAllocator);
 //    }
 //}
+//
+//// optional 是一个包装器，不包含任何值，直到分配东西，C17才能使用
+//struct QueueFamilyIndices
+//{
+//    std::optional <uint32_t> graphicsFamily;
+//
+//    bool isComplete()
+//    {
+//        return graphicsFamily.has_value();
+//    }
+//};
 //
 //class HelloTriangleApplication
 //{
@@ -73,6 +86,8 @@
 //    GLFWwindow* window;
 //    VkInstance instance;
 //    VkDebugUtilsMessengerEXT debugMessenger;
+//
+//    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 //
 //    void initWindow()
 //    {
@@ -91,9 +106,10 @@
 //    {
 //        createInstance();
 //        setupDebugMessenger();
+//        pickPhysicalDevice();
 //    }
 //
-//    
+//
 //
 //    // 运行的持久，可向 mainLoop 添加一个事件循环
 //    void mainLoop()
@@ -156,7 +172,7 @@
 //            createInfo.enabledLayerCount = 0;
 //            createInfo.pNext = nullptr;
 //        }
-//        if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) 
+//        if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
 //        {
 //            throw std::runtime_error("failed to create instance!");
 //        }
@@ -164,17 +180,18 @@
 //    void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
 //    {
 //        createInfo = {};
-//        createInfo.sType =           VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+//        createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 //        createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT // 诊断信息
 //                                   | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT // 可能是错误行为或者是应用程序中的错误
 //                                   | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;// 无效或者导致崩溃的信息
 //        createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT // 出现一些规格或性能无关的事件
-//                                   | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT // 违法规格或存在错误的事件
-//                                   | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT; // Vulkan不是最好的使用
+//                               | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT // 违法规格或存在错误的事件
+//                               | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT; // Vulkan不是最好的使用
 //        createInfo.pfnUserCallback = debugCallback;
 //    }
 //
-//    void setupDebugMessenger() {
+//    void setupDebugMessenger() 
+//    {
 //        if (!enableValidationLayers)
 //        {
 //            return;
@@ -187,6 +204,68 @@
 //            throw std::runtime_error("failed to set up debug messenger!");
 //        }
 //    }
+//
+//    void pickPhysicalDevice() 
+//    {
+//        uint32_t deviceCount = 0;
+//        vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+//
+//        if (deviceCount == 0)
+//        {
+//            throw std::runtime_error("failed to find GPUs with Vulkan support!");
+//        }
+//
+//        std::vector<VkPhysicalDevice> devices(deviceCount);
+//        vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+//
+//        for (const auto& device : devices)
+//        {
+//            if (isDeviceSuitable(device))
+//            {
+//                physicalDevice = device;
+//                break;
+//            }
+//        }
+//
+//        if (physicalDevice == VK_NULL_HANDLE)
+//        {
+//            throw std::runtime_error("failed to find a suitable GPU!");
+//        }
+//    }
+//
+//    bool isDeviceSuitable(VkPhysicalDevice device)
+//    {
+//        QueueFamilyIndices indices = findQueueFamilies(device);
+//
+//        return indices.isComplete();
+//    }
+//
+//    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device)
+//    {
+//        QueueFamilyIndices indices;
+//
+//        uint32_t queueFamilyCount = 0;
+//        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+//
+//        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+//        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+//
+//        int i = 0;
+//        for (const auto& queueFamily : queueFamilies)
+//        {
+//            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+//            {
+//                indices.graphicsFamily = i;
+//            }
+//            if (indices.isComplete())
+//            {
+//                break;
+//            }
+//            i++;
+//        }
+//        return indices;
+//    }
+//
 //    // 信息回调 创建一个 getRequiredExtensions 函数，用于判断是否启用验证层返回所需的扩展列表
 //    std::vector<const char*> getRequiredExtensions()
 //    {
@@ -218,7 +297,7 @@
 //        for (const char* layerName : validationLayers)
 //        {
 //            bool layerFound = false;
-//            
+//
 //            for (const auto& layerProperties : availableLayers)
 //            {
 //                if (strcmp(layerName, layerProperties.layerName) == 0)
@@ -235,9 +314,8 @@
 //        return true;
 //    }
 //    static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-//        VkDebugUtilsMessageTypeFlagsEXT messageType,
-//        // 详细信息的结构体
-//        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
+//                                                        VkDebugUtilsMessageTypeFlagsEXT messageType,
+//                                                        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) // 详细信息的结构体
 //    {
 //        std::cerr << "validation layer" << pCallbackData->pMessage << std::endl;
 //
