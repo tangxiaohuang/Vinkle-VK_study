@@ -89,7 +89,9 @@
 //    VkExtent2D swapChainExtent;
 //    std::vector<VkImageView> swapChainImageViews;
 //
+//    VkRenderPass renderPass;
 //    VkPipelineLayout pipelineLayout;
+//    VkPipeline graphicsPipeline;
 //
 //    void initWindow() {
 //        glfwInit();
@@ -108,6 +110,7 @@
 //        createLogicalDevice();
 //        createSwapChain();
 //        createImageViews();
+//        createRenderPass();
 //        createGraphicsPipeline();
 //    }
 //
@@ -118,7 +121,9 @@
 //    }
 //
 //    void cleanup() {
+//        vkDestroyPipeline(device, graphicsPipeline, nullptr);
 //        vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+//        vkDestroyRenderPass(device, renderPass, nullptr);
 //
 //        for (auto imageView : swapChainImageViews) {
 //            vkDestroyImageView(device, imageView, nullptr);
@@ -351,6 +356,38 @@
 //        }
 //    }
 //
+//    void createRenderPass() {
+//        VkAttachmentDescription colorAttachment{};
+//        colorAttachment.format = swapChainImageFormat;
+//        colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+//        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+//        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+//        colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+//        colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+//        colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+//        colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+//
+//        VkAttachmentReference colorAttachmentRef{};
+//        colorAttachmentRef.attachment = 0;
+//        colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+//
+//        VkSubpassDescription subpass{};
+//        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+//        subpass.colorAttachmentCount = 1;
+//        subpass.pColorAttachments = &colorAttachmentRef;
+//
+//        VkRenderPassCreateInfo renderPassInfo{};
+//        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+//        renderPassInfo.attachmentCount = 1;
+//        renderPassInfo.pAttachments = &colorAttachment;
+//        renderPassInfo.subpassCount = 1;
+//        renderPassInfo.pSubpasses = &subpass;
+//
+//        if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+//            throw std::runtime_error("failed to create render pass!");
+//        }
+//    }
+//
 //    void createGraphicsPipeline() {
 //        auto vertShaderCode = readFile("C:/Users/Administrator/Desktop/Vulkan的学习/Vulkan_start/Project/vulkan/vulkan/shadows/vert.spv");
 //        auto fragShaderCode = readFile("C:/Users/Administrator/Desktop/Vulkan的学习/Vulkan_start/Project/vulkan/vulkan/shadows/frag.spv");
@@ -372,19 +409,16 @@
 //
 //        VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 //
-//        // 传递给顶点着色器的顶点数据格式
 //        VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 //        vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 //        vertexInputInfo.vertexBindingDescriptionCount = 0;
 //        vertexInputInfo.vertexAttributeDescriptionCount = 0;
 //
-//        // 描述从顶点绘制什么样的几何图形
 //        VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
 //        inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 //        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 //        inputAssembly.primitiveRestartEnable = VK_FALSE;
 //
-//        // 视口：输出将渲染到帧缓冲区区域
 //        VkViewport viewport{};
 //        viewport.x = 0.0f;
 //        viewport.y = 0.0f;
@@ -393,12 +427,10 @@
 //        viewport.minDepth = 0.0f;
 //        viewport.maxDepth = 1.0f;
 //
-//        // 绘制个整个帧缓冲区，将其放置在 scissor 上
 //        VkRect2D scissor{};
 //        scissor.offset = { 0, 0 };
 //        scissor.extent = swapChainExtent;
 //
-//        // 视口和 scissor 需要通过 VkPipelineViewporStateCreateInfo 结构组合一个视口状态
 //        VkPipelineViewportStateCreateInfo viewportState{};
 //        viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 //        viewportState.viewportCount = 1;
@@ -406,39 +438,28 @@
 //        viewportState.scissorCount = 1;
 //        viewportState.pScissors = &scissor;
 //
-//        // 光栅化器，从顶点着色器中获取有顶点塑造的集合体，将其转换为片段，该功能很多。
 //        VkPipelineRasterizationStateCreateInfo rasterizer{};
 //        rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 //        rasterizer.depthClampEnable = VK_FALSE;
 //        rasterizer.rasterizerDiscardEnable = VK_FALSE;
 //        rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-//        // polygonMode:确定片段如何用于几何生成
-//        // VK_POLYGON_MODE_FILL:用片段填充多边形区域
-//        // Vk_POLYGON_MODE_LINE:多边形边被绘制为线
-//        // VK_POLYGON_MODE_POINT:多边形顶点绘制为点
 //        rasterizer.lineWidth = 1.0f;
 //        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
 //        rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
 //        rasterizer.depthBiasEnable = VK_FALSE;
 //
-//        // anti-aliasing 主要用于边缘，也就是哪些锯齿出现的地方
 //        VkPipelineMultisampleStateCreateInfo multisampling{};
 //        multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 //        multisampling.sampleShadingEnable = VK_FALSE;
 //        multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 //
-//        // 颜色混合 片段着色器返回颜色后，需要将其与帧缓冲区已有的颜色组合，有两种方法可以做到：
-//        // 混合旧值和新值以产生最终颜色 和 使用按位运算组合旧值和新值
-//        // 前者 包含每个附加帧缓冲区的配置
-//        // 后者 包含全局颜色混合设置
 //        VkPipelineColorBlendAttachmentState colorBlendAttachment{};
 //        colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 //        colorBlendAttachment.blendEnable = VK_FALSE;
 //
-//        // 混合方法
 //        VkPipelineColorBlendStateCreateInfo colorBlending{};
 //        colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-//        colorBlending.logicOpEnable = VK_FALSE; // 如果想要使用按位组合，将其更改成 VK_TRUE
+//        colorBlending.logicOpEnable = VK_FALSE;
 //        colorBlending.logicOp = VK_LOGIC_OP_COPY;
 //        colorBlending.attachmentCount = 1;
 //        colorBlending.pAttachments = &colorBlendAttachment;
@@ -447,7 +468,6 @@
 //        colorBlending.blendConstants[2] = 0.0f;
 //        colorBlending.blendConstants[3] = 0.0f;
 //
-//        // 动态状态
 //        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 //        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 //        pipelineLayoutInfo.setLayoutCount = 0;
@@ -455,6 +475,25 @@
 //
 //        if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
 //            throw std::runtime_error("failed to create pipeline layout!");
+//        }
+//
+//        VkGraphicsPipelineCreateInfo pipelineInfo{};
+//        pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+//        pipelineInfo.stageCount = 2;
+//        pipelineInfo.pStages = shaderStages;
+//        pipelineInfo.pVertexInputState = &vertexInputInfo;
+//        pipelineInfo.pInputAssemblyState = &inputAssembly;
+//        pipelineInfo.pViewportState = &viewportState;
+//        pipelineInfo.pRasterizationState = &rasterizer;
+//        pipelineInfo.pMultisampleState = &multisampling;
+//        pipelineInfo.pColorBlendState = &colorBlending;
+//        pipelineInfo.layout = pipelineLayout;
+//        pipelineInfo.renderPass = renderPass;
+//        pipelineInfo.subpass = 0;
+//        pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+//
+//        if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+//            throw std::runtime_error("failed to create graphics pipeline!");
 //        }
 //
 //        vkDestroyShaderModule(device, fragShaderModule, nullptr);

@@ -21,7 +21,7 @@
     <ClCompile Include="02_validation_layers.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="baseCode.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="03_physical_device_selection.cpp">
@@ -48,5 +48,22 @@
     <ClCompile Include="10_fixed_functions.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="11_render_passes.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="12_graphics_pipeline_complete.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="14_command_buffers.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="15_hello_triangle.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="baseCode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
