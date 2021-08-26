@@ -174,9 +174,19 @@
     <ClCompile Include="14_command_buffers.cpp" />
     <ClCompile Include="15_hello_triangle.cpp" />
     <ClCompile Include="baseCode.cpp" />
+    <ClCompile Include="commandBuffers.cpp" />
+    <ClCompile Include="drawFrames.cpp" />
+    <ClCompile Include="frameBuffers.cpp" />
+    <ClCompile Include="renderPasses.cpp" />
+    <ClCompile Include="shaderModules.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="baseCode.h" />
+    <ClInclude Include="commandBuffers.h" />
+    <ClInclude Include="drawFrames.h" />
+    <ClInclude Include="frameBuffers.h" />
+    <ClInclude Include="renderPasses.h" />
+    <ClInclude Include="shaderModules.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

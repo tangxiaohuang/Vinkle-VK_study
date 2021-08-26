@@ -60,9 +60,39 @@
     <ClCompile Include="15_hello_triangle.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="shaderModules.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="renderPasses.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="frameBuffers.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="commandBuffers.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="drawFrames.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="baseCode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="shaderModules.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="renderPasses.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="frameBuffers.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="commandBuffers.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="drawFrames.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
